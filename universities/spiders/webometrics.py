@@ -1,12 +1,13 @@
 import scrapy
-#import csv
+import csv
 
 class webometrics(scrapy.Spider):
     name = "metrics"
     
     def start_requests(self):
         start_urls = [
-            "https://webometrics.info/en/world"
+            "https://webometrics.info/en/world?page=120"
+#            "https://webometrics.info/en/world"
             ]
         for url in start_urls:
             yield scrapy.Request(url=url, callback=self.parse)
@@ -29,9 +30,8 @@ class webometrics(scrapy.Spider):
                                             "openness_rank,"
                                             "excellence_rank,\n"))
         
-#           csv.writer(open("universities.csv", "a")).writerow(row)
-
         rows = response.css("#block-system-main tr")
+        num_rows = len(rows) - 1
         uni_column = 2
         country_column = 4
 
@@ -47,7 +47,7 @@ class webometrics(scrapy.Spider):
         countries = rows.css(f"td:nth-child({country_column}) img::attr(src)")
         countries = countries.extract()
 
-        for i in range(len(rows) - 1):
+        for i in range(num_rows):
             uni = unis[i].split(">")[2].split("<")[0]
             website = uni_urls[i]
             country = countries[i].split("/")[-1].split(".")[0].upper()
@@ -55,18 +55,16 @@ class webometrics(scrapy.Spider):
             self.log(website)
             self.log(country)
 
+            csv.writer(open("universities.csv", "a")).writerow([uni,
+                                                                website,
+                                                                country])
+
 #        Extract ranks
         for column in [1, 5, 6, 7]:
             ranks = rows.css(f"td:nth-child({column})").extract()
-            for i in range(len(ranks)):
-                pass
-                #self.log(ranks[i].split(">")[2].split("<")[0])
-   
-           
-        first_page = response.url.split("/")[-1]
-        filename = f"data/metrics-{first_page}.html"
-        with open(filename, "wb") as f:
-            f.write(response.body)
+            for i in range(num_rows):
+                rank = ranks[i].split(">")[2].split("<")[0]
+                self.log(rank)
         
         next_page = response.css("li.pager-next a::attr(href)").get()
         if next_page is not None:
