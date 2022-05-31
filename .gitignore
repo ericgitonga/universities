@@ -1,0 +1,9 @@
+data/
+temp/
+.spyproject/
+__pycache__/
+spiders/__pycache__/
+*.pyc
+*.txt
+*.cfg
+*.csv
