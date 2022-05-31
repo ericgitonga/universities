@@ -3,6 +3,7 @@ import csv
 
 class webometrics(scrapy.Spider):
     name = "metrics"
+    chuo = []
     
     def start_requests(self):
         start_urls = [
@@ -55,14 +56,11 @@ class webometrics(scrapy.Spider):
             for column in [1, 5, 6, 7]:
                 ranks = rows.css(f"td:nth-child({column})").extract()
                 rank_list.append(ranks[i].split(">")[2].split("<")[0])
-            csv.writer(open("universities.csv", "a")).writerow([uni,
-                                                                website,
-                                                                country,
-                                                                rank_list[0],
-                                                                rank_list[1],
-                                                                rank_list[2],
-                                                                rank_list[3]])
-        
+            self.chuo.append([uni, website, country, rank_list[0],
+                             rank_list[1], rank_list[2], rank_list[3]])
+        for i, row in enumerate(self.chuo):
+            csv.writer(open("universities.csv", "a")).writerow(self.chuo[i])
+            
         next_page = response.css("li.pager-next a::attr(href)").get()
         if next_page is not None:
             next_page = response.urljoin(next_page)
