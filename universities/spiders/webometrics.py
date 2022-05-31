@@ -7,7 +7,7 @@ class webometrics(scrapy.Spider):
     
     def start_requests(self):
         start_urls = [
-            "https://webometrics.info/en/world"
+            "https://webometrics.info/en/world?page=120"
             ]
         for url in start_urls:
             yield scrapy.Request(url=url, callback=self.parse)
@@ -23,7 +23,7 @@ class webometrics(scrapy.Spider):
 #            ]
 
     def parse(self, response):
-        open("unis.csv", "w").write(("university,"
+        open("temp/unis.csv", "w").write(("university,"
                                             "website,"
                                             "country,"
                                             "world_rank,"
@@ -68,7 +68,7 @@ class webometrics(scrapy.Spider):
                                     rank_list[3]])
 
         for i, row in enumerate(self.university):
-            csv.writer(open("unis.csv", "a")).writerow(self.university[i])
+            csv.writer(open("temp/unis.csv", "a")).writerow(self.university[i])
             
         next_page = response.css("li.pager-next a::attr(href)").get()
         if next_page is not None:
