@@ -3,7 +3,7 @@ import csv
 
 class webometrics(scrapy.Spider):
     name = "metrics"
-    chuo = []
+    university = []
     
     def start_requests(self):
         start_urls = [
@@ -23,7 +23,7 @@ class webometrics(scrapy.Spider):
 #            ]
 
     def parse(self, response):
-        open("universities.csv", "w").write(("university,"
+        open("unis.csv", "w").write(("university,"
                                             "website,"
                                             "country,"
                                             "world_rank,"
@@ -53,13 +53,22 @@ class webometrics(scrapy.Spider):
             website = uni_urls[i]
             country = countries[i].split("/")[-1].split(".")[0].upper()
             rank_list = []
+
             for column in [1, 5, 6, 7]:
+#                Extract ranks
                 ranks = rows.css(f"td:nth-child({column})").extract()
                 rank_list.append(ranks[i].split(">")[2].split("<")[0])
-            self.chuo.append([uni, website, country, rank_list[0],
-                             rank_list[1], rank_list[2], rank_list[3]])
-        for i, row in enumerate(self.chuo):
-            csv.writer(open("universities.csv", "a")).writerow(self.chuo[i])
+
+            self.university.append([uni,
+                                    website,
+                                    country,
+                                    rank_list[0],
+                                    rank_list[1],
+                                    rank_list[2],
+                                    rank_list[3]])
+
+        for i, row in enumerate(self.university):
+            csv.writer(open("unis.csv", "a")).writerow(self.university[i])
             
         next_page = response.css("li.pager-next a::attr(href)").get()
         if next_page is not None:
