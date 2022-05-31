@@ -6,11 +6,11 @@ class webometrics(scrapy.Spider):
     
     def start_requests(self):
         start_urls = [
-            "https://webometrics.info/en/world?page=120"
-#            "https://webometrics.info/en/world"
+            "https://webometrics.info/en/world"
             ]
         for url in start_urls:
             yield scrapy.Request(url=url, callback=self.parse)
+
 #        regional_urls = [
 #            "https://webometrics.info/en/Africa"
 #            "https://webometrics.info/en/aw"
@@ -25,7 +25,7 @@ class webometrics(scrapy.Spider):
         open("universities.csv", "w").write(("university,"
                                             "website,"
                                             "country,"
-                                            "rank,"
+                                            "world_rank,"
                                             "impact_rank,"
                                             "openness_rank,"
                                             "excellence_rank,\n"))
@@ -54,17 +54,17 @@ class webometrics(scrapy.Spider):
             self.log(uni)
             self.log(website)
             self.log(country)
-
+            rank_list = []
+            for column in [1, 5, 6, 7]:
+                ranks = rows.css(f"td:nth-child({column})").extract()
+                rank_list.append(ranks[i].split(">")[2].split("<")[0])
             csv.writer(open("universities.csv", "a")).writerow([uni,
                                                                 website,
-                                                                country])
-
-#        Extract ranks
-        for column in [1, 5, 6, 7]:
-            ranks = rows.css(f"td:nth-child({column})").extract()
-            for i in range(num_rows):
-                rank = ranks[i].split(">")[2].split("<")[0]
-                self.log(rank)
+                                                                country,
+                                                                rank_list[0],
+                                                                rank_list[1],
+                                                                rank_list[2],
+                                                                rank_list[3]])
         
         next_page = response.css("li.pager-next a::attr(href)").get()
         if next_page is not None:
