@@ -38,36 +38,37 @@ class webometrics(scrapy.Spider):
 #        Extract university name
         unis = rows.css(f"td:nth-child({uni_column})")
         unis = unis.extract()
-        for i in range(len(unis)):
-            self.log(unis[i].split(">")[2].split("<")[0])
 
 #        Extract university url
         uni_urls = rows.css(f"td:nth-child({uni_column}) a::attr(href)")
         uni_urls = uni_urls.extract()
-        for i in range(len(uni_urls)):
-            self.log(uni_urls[i])
+
+#        Extract Country
+        countries = rows.css(f"td:nth-child({country_column}) img::attr(src)")
+        countries = countries.extract()
+
+        for i in range(len(rows) - 1):
+            uni = unis[i].split(">")[2].split("<")[0]
+            website = uni_urls[i]
+            country = countries[i].split("/")[-1].split(".")[0].upper()
+            self.log(uni)
+            self.log(website)
+            self.log(country)
 
 #        Extract ranks
         for column in [1, 5, 6, 7]:
             ranks = rows.css(f"td:nth-child({column})").extract()
             for i in range(len(ranks)):
-                self.log(ranks[i].split(">")[2].split("<")[0])
+                pass
+                #self.log(ranks[i].split(">")[2].split("<")[0])
    
-#        Extract Country
-        country = rows.css(f"td:nth-child({country_column}) img::attr(src)")
-        country = country.extract()
-        for i in range(len(country)):
-            self.log(country[i].split("/")[-1].split(".")[0].upper())
-
            
         first_page = response.url.split("/")[-1]
         filename = f"data/metrics-{first_page}.html"
         with open(filename, "wb") as f:
             f.write(response.body)
-        self.log(f"Saved file {filename}")
         
-        next_page = response.css("li.pager-nexts a::attr(href)").get()
-        self.log(next_page)
+        next_page = response.css("li.pager-next a::attr(href)").get()
         if next_page is not None:
             next_page = response.urljoin(next_page)
             yield scrapy.Request(url=next_page, callback=self.parse)
