@@ -43,7 +43,7 @@ class webometrics(scrapy.Spider):
         uni_urls = rows.css(f"td:nth-child({uni_column}) a::attr(href)")
         uni_urls = uni_urls.extract()
 
-#        Extract Country
+#        Extract country
         countries = rows.css(f"td:nth-child({country_column}) img::attr(src)")
         countries = countries.extract()
 
@@ -51,9 +51,6 @@ class webometrics(scrapy.Spider):
             uni = unis[i].split(">")[2].split("<")[0]
             website = uni_urls[i]
             country = countries[i].split("/")[-1].split(".")[0].upper()
-            self.log(uni)
-            self.log(website)
-            self.log(country)
             rank_list = []
             for column in [1, 5, 6, 7]:
                 ranks = rows.css(f"td:nth-child({column})").extract()
