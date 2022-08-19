@@ -1,16 +1,14 @@
 import scrapy
 import csv
+import pandas as pd
 
 class webometrics(scrapy.Spider):
     name = "metrics"
     university = []
-    
+
+
     def start_requests(self):
-        #start_urls = [
-        #    "https://webometrics.info/en/world"
-        #    ]
-        
-        regional_urls = [
+        start_urls = [
                     "https://webometrics.info/en/Africa",
                     "https://webometrics.info/en/aw",
                     "https://webometrics.info/en/Asia",
@@ -20,17 +18,20 @@ class webometrics(scrapy.Spider):
                     "https://webometrics.info/en/Oceania" 
                     ]
         
-        for url in regional_urls:
+        for url in start_urls:
             yield scrapy.Request(url=url, callback=self.parse)
+
 
     def parse(self, response):
         path = "temp/universities-july.csv"
+        save_path = "temp/universities-july.xlsx"
+        
         open(path, "w").write(("university,"
                                             "website,"
                                             "country,"
                                             "region,"
-                                            "region_rank,"
                                             "world_rank,"
+                                            "region_rank,"
                                             "impact_rank,"
                                             "openness_rank,"
                                             "excellence_rank,\n"))
@@ -62,7 +63,7 @@ class webometrics(scrapy.Spider):
             country = countries[i].split("/")[-1].split(".")[0].upper()
             rank_list = []
 
-            for column in [1, 2, 6, 7, 8]:
+            for column in [2, 1, 6, 7, 8]:
 #                Extract ranks
                 ranks = rows.css(f"td:nth-child({column})").extract()
                 rank_list.append(ranks[i].split(">")[2].split("<")[0])
@@ -84,3 +85,8 @@ class webometrics(scrapy.Spider):
         if next_page is not None:
             next_page = response.urljoin(next_page)
             yield scrapy.Request(url=next_page, callback=self.parse)
+            
+        df = pd.read_csv(path)
+        df.sort_values(by="world_rank", inplace=True)
+        df.reset_index(drop=True, inplace=True)
+        df.to_excel(save_path, index=False)
