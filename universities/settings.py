@@ -88,4 +88,4 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 LOG_STDOUT = True
-LOG_FILE = "/home/gitonga/Develop/Data Science/universities/log.txt"
+LOG_FILE = "/home/gitonga/Develop/Data Science/GIS/Martin/universities/log.txt"
